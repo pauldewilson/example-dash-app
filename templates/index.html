@@ -1,0 +1,39 @@
+<html lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+        <title>Sample Dash App</title>
+    </head>
+    <body>
+        <h1>
+            Login
+        </h1>
+        <h4>
+            Sample accounts:
+        </h4>
+        <ul>
+            <li>
+                bob@example.com
+            </li>
+            <ul>
+                <li>bobpass</li>
+            </ul>
+            <li>
+                sally@example.com
+            </li>
+            <ul>
+                <li>sallypass</li>
+            </ul>
+        </ul>
+        <form method="POST">
+            {{ form.csrf_token }}
+            {{ form.username.label }}
+            {{ form.username }}
+            {{ form.password.label }}
+            {{ form.password }}
+            <button type="submit" metheod="POST">Login</button>
+        </form>
+    {% for msg in get_flashed_messages() %}
+    {{ msg }}
+    {% endfor %}
+    </body>
+</html>

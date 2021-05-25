@@ -6,6 +6,8 @@ import os
 
 # instantiate application, sqlalchemy db, login manager, and config params
 app = Flask(__name__)
+# this secret key would never be publicly broadcast in a live environment
+# better practice is to utilise environment variables
 app.config['SECRET_KEY'] = 'j32hEQtYzYtHy5Egc^aTzrS6EvVipsJyggx5'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # basedir taken to place sqllite db within the project dir

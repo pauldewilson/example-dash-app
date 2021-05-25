@@ -1,7 +1,8 @@
 from flask import Flask, render_template, redirect, flash
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
 from forms.login_form import LoginForm
+from datasource.datasource import DataController
 import os
 
 # instantiate application, sqlalchemy db, login manager, and config params
@@ -119,8 +120,11 @@ def dashboard():
     """
     TODO: build analytics dashboard
     """
-    return render_template('dashboard.html')
+    return render_template('dashboard.html', current_user=current_user)
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # set download to false to turn off data download/aggregation
+    DataController(download_and_aggr_data=True)
+    # use_reloader set to False to stop double initialisation when in debug mode
+    app.run(debug=True, use_reloader=False)

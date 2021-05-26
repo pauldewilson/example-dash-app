@@ -1,4 +1,7 @@
 import pandas as pd
+import numpy as np
+import datetime
+import calendar
 import os
 
 
@@ -80,6 +83,27 @@ class DataController:
                 for col in self.df.columns:
                     if 'datetime' in col:
                         self.df[col] = pd.to_datetime(self.df[col])
+                # during pre-inspection it appeared irrelevant/erroneous data exists.
+                # ex. 2019-01 taxi rides data included trip dates from 2003 and 2088.
+                # To clean this out, any data that is less or greater than the start
+                # and end of the year-month per the meta tag is going to be removed
+
+                # get year month from meta tag
+                year_month = source['meta'][0:7]
+                # get first day of the month
+                year_month_first_day = datetime.datetime.strptime(year_month, '%Y-%m')
+                # get last day of the month
+                year_month_last_day = datetime.date(year_month_first_day.year, year_month_first_day.month,
+                                                    calendar.monthrange(year_month_first_day.year,
+                                                                        year_month_first_day.month)[-1])
+                # parse dates as numpy.datetime64 for filtering in pandas
+                year_month_first_day = np.datetime64(year_month_first_day)
+                year_month_last_day = np.datetime64(year_month_last_day)
+                # filter the tpep_pickup_datetime column for any instances outside of the start/end dates
+                self.df = self.df.loc[
+                          (self.df['tpep_pickup_datetime'] >= year_month_first_day)
+                          &
+                          (self.df['tpep_pickup_datetime'] <= year_month_last_day), :]
                 self.print_current_step("calculating trip durations")
                 # calculate trip duration
                 self.df['trip_duration'] = self.df['tpep_dropoff_datetime'] - self.df['tpep_pickup_datetime']

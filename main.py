@@ -1,12 +1,17 @@
+import os
 from flask import Flask, render_template, redirect, flash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
 from forms.login_form import LoginForm
 from datasource.datasource import DataController
-import os
+from dashapp.dashapp import initiate_dash_app, protect_views
 
-# instantiate application, sqlalchemy db, login manager, and config params
-app = Flask(__name__)
+# instantiate application and dash app, sqlalchemy db, login manager, and config params
+app = Flask(__name__, instance_relative_config=False)
+dash = initiate_dash_app()
+dash.init_app(app)
+# protect views function ensures authentication from flask passes to dash
+protect_views(dash, login_required)
 # this secret key would never be publicly broadcast in a live environment
 # better practice is to utilise environment variables
 app.config['SECRET_KEY'] = 'j32hEQtYzYtHy5Egc^aTzrS6EvVipsJyggx5'
@@ -114,17 +119,17 @@ def home():
     return render_template('index.html', form=login_form)
 
 
-@app.route('/dashboard', methods=["GET", "POST"])
+@app.route('/dashboard/', methods=["GET", "POST"])
 @login_required
 def dashboard():
     """
     TODO: build analytics dashboard
     """
-    return render_template('dashboard.html', current_user=current_user)
+    return redirect('/dashboard')
 
 
 if __name__ == '__main__':
     # set download to false to turn off data download/aggregation
-    DataController(download_and_aggr_data=True)
+    DataController(download_and_aggr_data=False)
     # use_reloader set to False to stop double initialisation when in debug mode
     app.run(debug=True, use_reloader=False)

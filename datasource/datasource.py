@@ -116,6 +116,13 @@ class DataController:
                 # end of present file, remove initial df from memory
                 del self.df
 
+            # merge dataframes from list_dfs and save to csv
+            self.print_current_step("Merging dataframes for output")
+            self._concat_and_save_dfs_to_csv()
+            # end of data load and aggregation
+            self.print_current_step(f"FINISHED: {self.files_loaded} of {len(self.data_sources)} files outputed.",
+                                    final=True)
+
     def _run(self):
         """
         If self.download_and_aggr_data then csvs are
@@ -123,9 +130,3 @@ class DataController:
         NOTE: data was inspected before creating this Class
         """
         self._download_and_aggregate()
-        # merge dataframes from list_dfs and save to csv
-        self.print_current_step("Merging dataframes for output")
-        self._concat_and_save_dfs_to_csv()
-        # end of data load and aggregation
-        self.print_current_step(f"FINISHED: {self.files_loaded} of {len(self.data_sources)} files outputed.",
-                                final=True)

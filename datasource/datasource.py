@@ -1,3 +1,4 @@
+from models.models import print_current_step
 import pandas as pd
 import numpy as np
 import datetime
@@ -30,18 +31,6 @@ class DataController:
         self.files_loaded = 0
         self._run()
 
-    @staticmethod
-    def print_current_step(message="", final=False):
-        """
-        Prints the current step to the screen to inform user of progress
-        """
-        print("-" * 100)
-        if not final:
-            print(message + "...")
-        elif final:
-            print(message)
-            print("-" * 100)
-
     def _concat_and_save_dfs_to_csv(self):
         """
         concatenates like-dataframes from list_dfs and saves to csv
@@ -53,20 +42,20 @@ class DataController:
             full_filepath = output_dir + '\\' + output_filename
             # ensure keep index since saving a grouped by df
             concat_df.to_csv(full_filepath)
-            self.print_current_step(f"file saved: {full_filepath}")
+            print_current_step(f"file saved: {full_filepath}")
 
     def _download_and_aggregate(self):
         if self.download_and_aggr_data is True:
-            self.print_current_step(
+            print_current_step(
                 f"download_and_aggr_data is True (see: main.py __name__ statement)"
                 f", loading {len(self.data_sources)} files. Please wait")
             # remove unwanted columns
             for source in self.data_sources:
                 # if zeroth file being loaded then inform loading else loading next file
                 if self.files_loaded == 0:
-                    self.print_current_step(f"Loading file")
+                    print_current_step(f"Loading file")
                 else:
-                    self.print_current_step(f"Loading next file")
+                    print_current_step(f"Loading next file")
                 # load file with only relevant columns
                 self.df = pd.read_csv(source['url'], usecols=[
                     'tpep_pickup_datetime',
@@ -77,9 +66,9 @@ class DataController:
                     'tip_amount'
                 ])
                 self.files_loaded = self.files_loaded + 1
-                self.print_current_step(f"{self.files_loaded} of {len(self.data_sources)} files loaded")
+                print_current_step(f"{self.files_loaded} of {len(self.data_sources)} files loaded")
                 # change datetime cols to datetime (pre-inspection identified they were objects)
-                self.print_current_step("parsing datetime columns")
+                print_current_step("parsing datetime columns")
                 for col in self.df.columns:
                     if 'datetime' in col:
                         self.df[col] = pd.to_datetime(self.df[col])
@@ -104,11 +93,11 @@ class DataController:
                           (self.df['tpep_pickup_datetime'] >= year_month_first_day)
                           &
                           (self.df['tpep_pickup_datetime'] <= year_month_last_day), :]
-                self.print_current_step("calculating trip durations")
+                print_current_step("calculating trip durations")
                 # calculate trip duration
                 self.df['trip_duration'] = self.df['tpep_dropoff_datetime'] - self.df['tpep_pickup_datetime']
                 # drop columns no longer required
-                self.print_current_step("dropping non required columns")
+                print_current_step("dropping non required columns")
                 cols_to_drop = ['tpep_dropoff_datetime']
                 self.df.drop(columns=cols_to_drop, inplace=True)
                 # rename tpep_pickup_datetime to more user friendly 'trip_date'
@@ -117,7 +106,7 @@ class DataController:
                 # convert from datetime to date only (grouping by date later)
                 self.df['trip_date'] = self.df['trip_date'].dt.date
                 # aggregate by day, day_name, and mean, median
-                self.print_current_step("performing aggregation")
+                print_current_step("performing aggregation")
                 for group_by_col in ['trip_date']:
                     for aggr_type in ['mean', 'median']:
                         # create respective aggregate df
@@ -141,10 +130,10 @@ class DataController:
                 del self.df
 
             # merge dataframes from list_dfs and save to csv
-            self.print_current_step("Merging dataframes for output")
+            print_current_step("Merging dataframes for output")
             self._concat_and_save_dfs_to_csv()
             # end of data load and aggregation
-            self.print_current_step(f"FINISHED: {self.files_loaded} of {len(self.data_sources)} files outputed.",
+            print_current_step(f"FINISHED: {self.files_loaded} of {len(self.data_sources)} files outputed.",
                                     final=True)
 
     def _run(self):

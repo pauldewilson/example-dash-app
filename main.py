@@ -130,6 +130,6 @@ def dashboard():
 
 if __name__ == '__main__':
     # set download to false to turn off data download/aggregation
-    DataController(download_and_aggr_data=False)
+    DataController(download_and_aggr_data=True)
     # use_reloader set to False to stop double initialisation when in debug mode
-    app.run(debug=True, use_reloader=False)
+    app.run(debug=False, use_reloader=False)
